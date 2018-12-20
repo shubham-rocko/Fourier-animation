@@ -80,13 +80,16 @@ function rotateradius(lineDraw) {
   lineAnimation(lineDraw, x2, y2);
   let x1,y1;
   // console.log(previousData.x - x2);
-  x1  = previousData.startX = previousData.startX +(NOOFCYCLES * Math.abs(previousData.x - x2));
+  x1  = previousData.startX = previousData.startX + Math.abs(previousData.x - x2);
 
-  // y1 = previousData.startY + (previousData.x - y2);
+  y1 = previousData.startY = previousData.startY + Math.abs(previousData.y - y2);
   animateWave(x1,y2,ORIGIN.x + ORIGIN.r+ATTACHLINE.initDist,y2);
-  if(theta >= (NOOFCYCLES*2)*Math.PI){
+  if(theta >= (NOOFCYCLES/2)*Math.PI){
     NOOFCYCLES++;
+    // debugger;
+    // console.clear()
   }
+
   previousData.x = x2;
   previousData.y = y2;
 }
@@ -107,17 +110,23 @@ function moveAttachLine(originX, originY){
 }
 
 var waveForm;
+var wavePath;
 function createWave(x1, y1, circleGroup){
-  waveForm = circleGroup.line(x1, y1, x1, y1);
-  waveForm.attr({ stroke: "#ff0000", strokeWidth: 4 });
+  wavePath =`M ${x1+1} ${y1+1} Q ${x1} ${y1+1} ${x1} ${y1}`;
+  waveForm = circleGroup.path(wavePath);
+  waveForm.attr({ fill: "transparent", stroke: "#ff0000", strokeWidth: 4 });
 }
 
 function animateWave(x1, y1, x2, y2){
+  // waveForm = `M ${x2} ${y2} Q ${x1} ${y2} ${x1} ${y1}`;
+  waveForm.animate({d: `M ${x1} ${y1} Q ${x2} ${y1} ${x2} ${100}`}, SPEED.duration, mina.linear);
+  // var lineDraw = this.axisLineGroup.path(linePath);
+  // debugger
   // if(x1 < 200 || x2 < 200){
-  //   console.log("updated X====>", x1)
+    // console.log("updated X1====>", x1,"updated y1====>", y1,"updated X2====>", x2,"updated y2====>", y2)
   // }
-  var waveForm1 = s.line(x1, y1, x2, y2);
-  waveForm1.attr({ fill:"none", stroke: "#ff0000", strokeWidth: 4 });
+  // var waveForm1 = s.line(x1, y1, x2, y2);
+  // waveForm1.attr({ fill:"none", stroke: "#ff0000", strokeWidth: 4 });
   // var myAnim = waveForm.animate({ x1: x1, x2: x2, y2: y2 }, SPEED.duration, mina.linear);
 }
 
