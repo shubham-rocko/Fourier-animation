@@ -23,6 +23,7 @@ const ATTACHLINE = {
   initDist: 50
 }
 
+var NOOFCYCLES = 1;
 // var circleGroup;
 @Component({
   selector: "app-root",
@@ -51,7 +52,8 @@ function createSvgAnimation(noCircle) {
     })
     .addClass("join");
   drawLine(ORIGIN.x, ORIGIN.y, ORIGIN.x + ORIGIN.r, ORIGIN.y, circleGroup);
-  drawLineAttachLine(ORIGIN.x+ORIGIN.r, ORIGIN.y, ORIGIN.x + ORIGIN.r+ATTACHLINE.initDist, ORIGIN.y, circleGroup)
+  drawLineAttachLine(ORIGIN.x+ORIGIN.r, ORIGIN.y, ORIGIN.x + ORIGIN.r+ATTACHLINE.initDist, ORIGIN.y, circleGroup);
+  createWave(ORIGIN.x + ORIGIN.r+ATTACHLINE.initDist, ORIGIN.y, circleGroup)
 }
 
 function drawLine(x1, y1, x2, y2, circleGroup) {
@@ -62,6 +64,12 @@ function drawLine(x1, y1, x2, y2, circleGroup) {
   }, SPEED.duration);
 }
 
+var previousData = {
+  startX: 200, // changeable DO NOT USE ANY WHERE
+  startY: 100,
+  x: 150,
+  y: 100
+}
 function rotateradius(lineDraw) {
   theta = theta + Math.PI / 180;
   let a = ORIGIN.r * Math.sin(theta);
@@ -70,10 +78,24 @@ function rotateradius(lineDraw) {
   let y2 = ORIGIN.y + a;
   moveAttachLine(x2, y2);
   lineAnimation(lineDraw, x2, y2);
+  let x1,y1;
+  // console.log(previousData.x - x2);
+  x1  = previousData.startX = previousData.startX + Math.abs(previousData.x - x2);
+
+  y1 = previousData.startY = previousData.startY + Math.abs(previousData.y - y2);
+  animateWave(x1,y2,ORIGIN.x + ORIGIN.r+ATTACHLINE.initDist,y2);
+  if(theta >= (NOOFCYCLES/2)*Math.PI){
+    NOOFCYCLES++;
+    // debugger;
+    // console.clear()
+  }
+
+  previousData.x = x2;
+  previousData.y = y2;
 }
 
 function lineAnimation(lineDraw, x2, y2) {
-  // console.log("x2===>",x2, "y2====>", y2);
+  // console.log("x2===>",150-x2, "y2====>", 100-y2);
   var myAnim = lineDraw.animate({ x2: x2, y2: y2 }, SPEED.duration, mina.linear);
 }
 
@@ -87,8 +109,25 @@ function moveAttachLine(originX, originY){
   var myAnim = attachedline.animate({ x1: originX, y1: originY, y2: originY }, SPEED.duration, mina.linear);
 }
 
-// function animateAttachLine(y1, x2, y2){
-//   var myAnim = attachedline.animate({ y1: y1, x2: x2, y2: y2 }, 50, mina.linear);
-// }
+var waveForm;
+var wavePath;
+function createWave(x1, y1, circleGroup){
+  wavePath =`M ${x1+1} ${y1+1} Q ${x1} ${y1+1} ${x1} ${y1}`;
+  waveForm = circleGroup.path(wavePath);
+  waveForm.attr({ fill: "transparent", stroke: "#ff0000", strokeWidth: 4 });
+}
+
+function animateWave(x1, y1, x2, y2){
+  // waveForm = `M ${x2} ${y2} Q ${x1} ${y2} ${x1} ${y1}`;
+  waveForm.animate({d: `M ${x1} ${y1} Q ${x2} ${y1} ${x2} ${100}`}, SPEED.duration, mina.linear);
+  // var lineDraw = this.axisLineGroup.path(linePath);
+  // debugger
+  // if(x1 < 200 || x2 < 200){
+    // console.log("updated X1====>", x1,"updated y1====>", y1,"updated X2====>", x2,"updated y2====>", y2)
+  // }
+  // var waveForm1 = s.line(x1, y1, x2, y2);
+  // waveForm1.attr({ fill:"none", stroke: "#ff0000", strokeWidth: 4 });
+  // var myAnim = waveForm.animate({ x1: x1, x2: x2, y2: y2 }, SPEED.duration, mina.linear);
+}
 
 function startSvgAnimation() {}
